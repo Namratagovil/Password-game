@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<!-- saved from url=(0089)https://id-preview-%2Deb0eede1-d9fd-455f-ba1b-1d66419a1c8f.lovable.app/password-game.html -->
+<html lang="en"><plasmo-csui><template shadowrootmode="open"><div id="plasmo-shadow-container" style="z-index: 2147483647; position: relative;"><div id="plasmo-overlay-0" class="plasmo-csui-container" style="display: flex; position: absolute; top: 0px; left: 0px;"></div></div></template></plasmo-csui><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Password Game</title>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link href="./game_files/css2" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#F4F5F7;--fg:#1a1d27;--card:#ffffff;--card-70:rgba(255,255,255,0.7);
+--border:#dfe1e8;--border-50:rgba(223,225,232,0.5);--muted:#6b7080;--muted-bg:#e8e9ed;
+--primary:#2E78B5;--primary-dark:#1B6AAA;--primary-fg:#fff;
+--success:#10B981;--success-bg:rgba(16,185,129,0.08);--success-border:rgba(16,185,129,0.35);
+--error:#d97706;
+--current-bg:rgba(46,120,181,0.06);--current-border:rgba(46,120,181,0.45);
+--radius:0.75rem;
+}
+.dark{
+--bg:#14161C;--fg:#e5e7ee;--card:#1e2028;--card-70:rgba(30,32,40,0.7);
+--border:#2c2f3a;--border-50:rgba(44,47,58,0.5);--muted:#7d8194;--muted-bg:#272a35;
+--primary:#A9C9FF;--primary-dark:#53ADD2;--primary-fg:#14161C;
+--success:#34D399;--success-bg:rgba(52,211,153,0.1);--success-border:rgba(52,211,153,0.3);
+--error:#f59e0b;
+--current-bg:rgba(169,201,255,0.08);--current-border:rgba(169,201,255,0.4);
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--fg);transition:background .3s,color .3s;min-height:100vh}
+button{cursor:pointer;font-family:inherit}
+.header{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 16px;border-bottom:1px solid var(--border-50);background:var(--card-70);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.header h1{font-size:16px;font-weight:600;letter-spacing:-0.02em}
+.icon-btn{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border:none;background:transparent;border-radius:8px;color:var(--muted);transition:color .2s,background .2s}
+.icon-btn:hover{color:var(--fg);background:var(--muted-bg)}
+.icon-btn svg{width:16px;height:16px}
+main{max-width:512px;margin:0 auto;padding:24px 16px}
+.input-zone{border-radius:var(--radius);background:var(--card-70);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--border-50);padding:16px}
+.input-zone label{display:block;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:6px}
+.input-zone textarea{width:100%;resize:none;border:1px solid var(--border);background:transparent;border-radius:8px;padding:12px 16px;font-size:14px;font-family:'Geist Mono',monospace;color:var(--fg);outline:none;transition:border .2s;overflow:hidden}
+.input-zone textarea::placeholder{color:var(--muted)}
+.input-zone textarea:focus{border-color:var(--primary)}
+.rules-header{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin:24px 0 12px}
+.group{margin-bottom:12px}
+.group-trigger{display:flex;align-items:center;justify-content:space-between;width:100%;padding:12px 16px;border:1px solid var(--border);background:var(--card);border-radius:8px;font-size:14px;font-weight:600;color:var(--fg);transition:background .2s}
+.group-trigger:hover{background:var(--muted-bg)}
+.group-trigger .count{font-size:12px;font-weight:500;padding:2px 8px;border-radius:999px;margin-left:10px}
+.count-done{background:var(--success-bg);color:var(--success)}
+.count-pending{background:var(--muted-bg);color:var(--muted)}
+.group-trigger .chevron{width:16px;height:16px;color:var(--muted);transition:transform .2s}
+.group-trigger.open .chevron{transform:rotate(180deg)}
+.group-content{display:none;padding-top:6px}
+.group-content.open{display:flex;flex-direction:column;gap:6px}
+.rule{display:flex;align-items:flex-start;gap:12px;padding:14px;border-radius:8px;border:1px solid var(--border);background:var(--card);transition:all .3s}
+.rule.passed{border-color:var(--success-border);background:var(--success-bg)}
+.rule.current{border-color:var(--current-border);background:var(--current-bg);animation:pulse-border 2s ease-in-out infinite}
+@keyframes pulse-border{0%,100%{border-color:var(--current-border)}50%{border-color:transparent}}
+.dot{margin-top:2px;flex-shrink:0;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.dot.pass{background:var(--success)}
+.dot.fail-current{background:var(--primary)}
+.dot.fail{background:var(--error)}
+.dot svg{width:12px;height:12px}
+.dot .mini-dot{width:6px;height:6px;border-radius:50%;background:var(--primary-fg)}
+.rule-text{flex:1;font-size:14px;font-weight:500;line-height:1.5}
+.rule-text .rid{color:var(--muted);margin-right:6px}
+.badge{flex-shrink:0;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;background:var(--primary);color:var(--primary-fg);line-height:1.4}
+/* Modal */
+.overlay{display:none;position:fixed;inset:0;z-index:50;background:rgba(0,0,0,0.5);align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;max-width:340px;width:90%;text-align:center}
+.modal h2{font-size:18px;font-weight:600;margin-bottom:8px}
+.modal p{font-size:14px;color:var(--muted);margin-bottom:20px}
+.modal-btns{display:flex;gap:12px;justify-content:center}
+.modal-btns button{padding:8px 20px;border-radius:8px;font-size:14px;font-weight:500;border:1px solid var(--border);transition:background .2s}
+.btn-cancel{background:transparent;color:var(--fg)}
+.btn-cancel:hover{background:var(--muted-bg)}
+.btn-restart{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.btn-restart:hover{opacity:0.9}
+/* Success */
+.success-screen{display:none;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);padding:16px;text-align:center}
+.success-screen.open{display:flex}
+.success-screen h1{font-size:clamp(32px,6vw,48px);font-weight:700;letter-spacing:-0.03em;margin-bottom:12px}
+.success-screen p{font-size:18px;color:var(--muted);margin-bottom:24px}
+.btn-play{padding:12px 32px;border-radius:8px;font-size:16px;font-weight:500;background:var(--primary);color:var(--primary-fg);border:none;transition:opacity .2s}
+.btn-play:hover{opacity:0.9}
+</style>
+
+<style>
+	@font-face {
+		font-family: 'CameraPlainVariable';
+		src: url('https://cdn.gpteng.co/mcp-widgets/v1/fonts/CameraPlainVariable.woff2') format('woff2');
+		font-weight: 100 900;
+		font-style: normal;
+		font-display: swap;
+	}
+
+	#lovable-badge {
+		--badge-bg: #1b1b1b;
+		--badge-text: #c5c1b9;
+		--badge-text-hover: #dcdad5;
+		--badge-radius: 6px;
+		--badge-padding: 8px;
+		--badge-gap: 6px;
+		--badge-shadow: 
+			0 0 0 1px rgba(0, 0, 0, 0.88),
+			0 1px 0 0 rgba(0, 0, 0, 0.04),
+			0 2px 2px -1px rgba(0, 0, 0, 0.08),
+			0 4px 4px -2px rgba(0, 0, 0, 0.08),
+			0 8px 8px -4px rgba(0, 0, 0, 0.08),
+			0 16px 16px -8px rgba(0, 0, 0, 0.08);
+		--badge-transition-duration: 0.2s;
+		--badge-transition-easing: cubic-bezier(0.16, 1, 0.32, 1);
+		--focus-color: #575ECF;
+		--focus-offset: 2px;
+		--focus-width: 2px;
+		
+		position: fixed;
+		bottom: 12px;
+		right: 12px;
+		height: 24px;
+		display: flex;
+		align-items: center;
+		z-index: 1000000;
+		background-color: var(--badge-bg);
+		color: var(--badge-text);
+		border-radius: var(--badge-radius);
+		box-shadow: var(--badge-shadow);
+		font-size: 12px;
+		font-family: CameraPlainVariable, "CameraPlainVariable Fallback", -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+		font-weight: 400 !important;
+		text-transform: none !important;
+		font-feature-settings: normal !important;
+		transform: translateZ(0);
+		will-change: transform, opacity;
+	}
+
+	#lovable-badge-cta {
+		display: flex;
+		align-items: center;
+		gap: var(--badge-gap);
+		padding: 0 var(--badge-padding);
+		height: 100%;
+		color: inherit;
+		text-decoration: none;
+		white-space: nowrap;
+		border-radius: var(--badge-radius) 0 0 var(--badge-radius);
+		transition: 
+			background-color var(--badge-transition-duration) ease,
+			color var(--badge-transition-duration) ease,
+			transform 0.1s ease;
+	}
+
+	#lovable-badge-cta:hover {
+		background: rgba(255, 255, 255, 0.04);
+		color: var(--badge-text-hover);
+	}
+
+	#lovable-badge-cta:active {
+		transform: scale(0.98);
+	}
+
+	#lovable-badge-cta:focus {
+		outline: none;
+	}
+
+	#lovable-badge-cta:focus-visible {
+		outline: var(--focus-width) solid var(--focus-color);
+		outline-offset: var(--focus-offset);
+		z-index: 1;
+	}
+
+	#lovable-badge-text {
+		line-height: 1;
+	}
+
+	#lovable-badge-divider {
+		width: 1px;
+		height: 24px;
+		background-color: rgba(255, 255, 255, 0.04);
+		flex-shrink: 0;
+	}
+
+	#lovable-badge-close {
+		width: 24px;
+		height: 24px;
+		min-width: 24px;
+		min-height: 24px;
+		cursor: pointer;
+		background: none;
+		border: none;
+		padding: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 0 var(--badge-radius) var(--badge-radius) 0;
+		flex-shrink: 0;
+		transition: 
+			background-color var(--badge-transition-duration) ease,
+			transform 0.1s ease;
+	}
+
+	#lovable-badge-close:hover {
+		background: rgba(255, 255, 255, 0.04);
+	}
+
+	#lovable-badge-close:active {
+		transform: scale(0.92);
+	}
+
+	#lovable-badge-close:focus {
+		outline: none;
+	}
+
+	#lovable-badge-close:focus-visible {
+		outline: var(--focus-width) solid var(--focus-color);
+		outline-offset: calc(var(--focus-offset) * -1);
+		z-index: 1;
+	}
+
+	#lovable-badge-close svg path {
+		fill: var(--badge-text);
+		transition: fill var(--badge-transition-duration) ease;
+	}
+
+	#lovable-badge-close:hover svg path {
+		fill: var(--badge-text-hover);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		#lovable-badge-cta,
+		#lovable-badge-close,
+		#lovable-badge-close svg path {
+			transition: none;
+		}
+		
+		#lovable-badge-cta:active,
+		#lovable-badge-close:active {
+			transform: none;
+		}
+	}
+
+	@media (prefers-contrast: high) {
+		#lovable-badge {
+			--badge-bg: #000;
+			--badge-text: #fff;
+			--badge-text-hover: #fff;
+			border: 2px solid currentColor;
+		}
+		
+		#lovable-badge-cta:focus-visible,
+		#lovable-badge-close:focus-visible {
+			outline-width: 3px;
+		}
+	}
+</style>
+<meta name="twitter:image" content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4b584133-5b7a-4c73-b34e-5f6e248e61e7/id-preview-919c395e--eb0eede1-d9fd-455f-ba1b-1d66419a1c8f.lovable.app-1772983779437.png"></head>
+<body>
+<div id="game">
+<header class="header">
+<h1>Password game</h1>
+<div style="display:flex;gap:4px">
+<button class="icon-btn" id="themeBtn" aria-label="Toggle theme">
+<svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>
+<svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="display: block;"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"></path></svg>
+</button>
+<button class="icon-btn" id="restartBtn" aria-label="Restart">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"></path><path d="M3.51 15a9 9 0 102.13-9.36L1 10"></path></svg>
+</button>
+</div>
+</header>
+<main>
+<div class="input-zone">
+<label for="pw">Enter your password</label>
+<textarea id="pw" rows="1" placeholder="Start typing..." autofocus="" style="height: 42px;"></textarea>
+</div>
+<div id="rulesArea" style="display: none;">
+<p class="rules-header" id="rulesCount">Rules (0/20)</p>
+<div id="groupsContainer"><div class="group"><button class="group-trigger open" data-group="The Basics">
+<div style="display:flex;align-items:center;gap:10px"><span>The Basics</span><span class="count count-pending">0/1</span></div>
+<svg class="chevron" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg>
+</button>
+<div class="group-content open"><div class="rule current"><div class="dot fail-current"><span class="mini-dot"></span></div><div style="flex:1;min-width:0;display:flex;align-items:flex-start;gap:8px"><p class="rule-text"><span class="rid">#1</span>Your password must be at least 5 characters long.</p><span class="badge">Current</span></div></div></div></div></div>
+</div>
+</main>
+</div>
+
+<div class="overlay" id="restartModal">
+<div class="modal">
+<h2>Restart?</h2>
+<p>All progress will be lost.</p>
+<div class="modal-btns">
+<button class="btn-cancel" id="modalCancel">Cancel</button>
+<button class="btn-restart" id="modalRestart">Restart</button>
+</div>
+</div>
+</div>
+
+<div class="success-screen" id="successScreen">
+<h1>You did it.</h1>
+<p>Against all odds, you found the password.</p>
+<button class="btn-play" id="playAgain">Play Again</button>
+</div>
+
+<script>
+// ===== RULES =====
+const MONTHS=["january","february","march","april","may","june","july","august","september","october","november","december"];
+const ROMAN_NUMERALS={I:1,V:5,X:10,L:50,C:100,D:500,M:1000};
+function extractRomanNumerals(s){const r=[];const m=s.match(/[IVXLCDM]+/g);if(!m)return r;for(const match of m){let v=0;for(let i=0;i<match.length;i++){const c=ROMAN_NUMERALS[match[i]]||0;const n=ROMAN_NUMERALS[match[i+1]]||0;v+=c<n?-c:c}if(v>0)r.push(v)}return r}
+const NOBLE_GASES=["He","Ne","Ar","Kr","Xe","Rn","Og"];
+const CHESS_MOVES=/(?:[KQRBN][a-h]?[1-8]?x?[a-h][1-8](?:=[QRBN])?[+#]?|O-O(?:-O)?)/;
+function isFib(n){return[1,2,3,5,8,13,21,34,55,89,144,233].includes(n)}
+function isPrime(n){if(n<2)return false;for(let i=2;i<=Math.sqrt(n);i++)if(n%i===0)return false;return true}
+const CONTINENTS_A=["africa","asia","antarctica","australia"];
+const LEAP_YEARS=[2024,2028,2032,2020,2016,2012,2008,2004,2000,1996,1992];
+const TLDS=[".com",".org",".net",".io",".dev",".app",".co",".me",".xyz",".ai",".uk",".de",".fr",".jp",".edu",".gov"];
+
+const rules=[
+{id:1,desc:"Your password must be at least 5 characters long.",v:p=>p.length>=5},
+{id:2,desc:"Your password must include a number.",v:p=>/\d/.test(p)},
+{id:3,desc:"Your password must include an uppercase letter.",v:p=>/[A-Z]/.test(p)},
+{id:4,desc:"Your password must include a special character.",v:p=>/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(p)},
+{id:5,desc:"The digits in your password must add up to 25.",v:p=>{const s=p.split("").filter(c=>/\d/.test(c)).reduce((a,c)=>a+parseInt(c),0);return s===25}},
+{id:6,desc:"Your password must include a month of the year.",v:p=>MONTHS.some(m=>p.toLowerCase().includes(m))},
+{id:7,desc:"Your password must include a Roman numeral.",v:p=>extractRomanNumerals(p).length>0},
+{id:8,desc:"Your password must include 'Luma' as a sponsor.",v:p=>p.toLowerCase().includes("luma")},
+{id:9,desc:"Your password must include an emoji.",v:p=>/\p{Emoji_Presentation}/u.test(p)},
+{id:10,desc:"Your password must include its own length as a number.",v:p=>p.includes(String(p.length))},
+{id:11,desc:"Your password must include a gray hex code (#cccccc).",v:p=>p.toLowerCase().includes("#cccccc")},
+{id:12,desc:"Your password must include a continent starting with 'A'.",v:p=>CONTINENTS_A.some(c=>p.toLowerCase().includes(c))},
+{id:13,desc:"Your password must include a prime number between 10 and 100.",v:p=>{for(let i=0;i<p.length-1;i++)for(let l=2;l<=3&&i+l<=p.length;l++){const s=p.substring(i,i+l);if(/^\d+$/.test(s)){const v=parseInt(s);if(v>=10&&v<=100&&isPrime(v))return true}}return false}},
+{id:14,desc:"Your password must include the current temperature in Oslo (use: 2).",v:p=>p.includes("2")},
+{id:15,desc:"Your password must include a leap year.",v:p=>{const n=p.match(/\d+/g);return n?n.some(x=>LEAP_YEARS.includes(parseInt(x))):false}},
+{id:16,desc:"Your password must include a noble gas symbol (e.g., He, Ne, Ar).",v:p=>NOBLE_GASES.some(g=>p.includes(g))},
+{id:17,desc:"Your password must include a chess move (e.g., Nf3, e4, O-O).",v:p=>CHESS_MOVES.test(p)},
+{id:18,desc:"Your password's length must be a Fibonacci number.",v:p=>isFib(p.length)},
+{id:19,desc:"Your password must include a top-level domain (e.g., .io, .com).",v:p=>TLDS.some(t=>p.toLowerCase().includes(t))},
+{id:20,desc:"Your password must include the sum of all rule numbers (1+2+...+19 = 190).",v:p=>p.includes("190")},
+];
+
+const groups=[
+{label:"The Basics",ids:[1,2,3,4,5]},
+{label:"Complexity",ids:[6,7,8,9,10]},
+{label:"External Data",ids:[11,12,13,14,15]},
+{label:"The Endgame",ids:[16,17,18,19,20]},
+];
+
+// ===== STATE =====
+let password="";
+let openGroups={};
+
+// ===== THEME =====
+const stored=localStorage.getItem("pw-game-theme");
+let theme=stored==="dark"||stored==="light"?stored:(window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");
+applyTheme();
+function applyTheme(){document.documentElement.classList.toggle("dark",theme==="dark");localStorage.setItem("pw-game-theme",theme);document.getElementById("sunIcon").style.display=theme==="dark"?"block":"none";document.getElementById("moonIcon").style.display=theme==="dark"?"none":"block"}
+document.getElementById("themeBtn").onclick=()=>{theme=theme==="dark"?"light":"dark";applyTheme()};
+
+// ===== ELEMENTS =====
+const pw=document.getElementById("pw");
+const rulesArea=document.getElementById("rulesArea");
+const rulesCount=document.getElementById("rulesCount");
+const groupsContainer=document.getElementById("groupsContainer");
+const restartModal=document.getElementById("restartModal");
+const successScreen=document.getElementById("successScreen");
+const gameEl=document.getElementById("game");
+
+document.getElementById("restartBtn").onclick=()=>{if(password)restartModal.classList.add("open")};
+document.getElementById("modalCancel").onclick=()=>restartModal.classList.remove("open");
+document.getElementById("modalRestart").onclick=restart;
+document.getElementById("playAgain").onclick=restart;
+
+function restart(){password="";pw.value="";openGroups={};restartModal.classList.remove("open");successScreen.classList.remove("open");gameEl.style.display="";pw.style.height="auto";pw.focus();render()}
+
+pw.addEventListener("input",()=>{password=pw.value;pw.style.height="auto";pw.style.height=Math.min(pw.scrollHeight,window.innerHeight*0.3)+"px";render()});
+
+function render(){
+const results=rules.map(r=>({...r,passed:r.v(password)}));
+const firstFail=results.find(r=>!r.passed);
+const currentId=firstFail?firstFail.id:null;
+const visible=new Set();
+for(const r of results){visible.add(r.id);if(!r.passed)break}
+const totalPassed=results.filter(r=>r.passed).length;
+
+if(results.every(r=>r.passed)){gameEl.style.display="none";successScreen.classList.add("open");fireConfetti();return}
+
+rulesArea.style.display=password.length>0?"block":"none";
+rulesCount.textContent=`Rules (${totalPassed}/${rules.length})`;
+
+const visibleGroups=groups.filter(g=>g.ids.some(id=>visible.has(id)));
+
+// Auto-collapse fulfilled groups, keep current group open
+for(const g of groups){
+const gRulesAll=g.ids.filter(id=>visible.has(id)).map(id=>results.find(r=>r.id===id)).filter(Boolean);
+const allPassed=gRulesAll.length>0&&gRulesAll.every(r=>r.passed);
+if(allPassed){openGroups[g.label]=false}
+}
+if(currentId!==null){const g=groups.find(g=>g.ids.includes(currentId));if(g)openGroups[g.label]=true}
+
+groupsContainer.innerHTML="";
+for(const g of visibleGroups){
+const gRules=g.ids.filter(id=>visible.has(id)).map(id=>results.find(r=>r.id===id)).filter(Boolean);
+const passed=gRules.filter(r=>r.passed).length;
+const allDone=passed===gRules.length;
+const isOpen=openGroups[g.label]||false;
+
+const div=document.createElement("div");div.className="group";
+div.innerHTML=`<button class="group-trigger${isOpen?" open":""}" data-group="${g.label}">
+<div style="display:flex;align-items:center;gap:10px"><span>${g.label}</span><span class="count ${allDone?"count-done":"count-pending"}">${passed}/${gRules.length}</span></div>
+<svg class="chevron" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+</button>
+<div class="group-content${isOpen?" open":""}"></div>`;
+
+const content=div.querySelector(".group-content");
+for(const r of gRules){
+const isCurrent=r.id===currentId;
+const cls=r.passed?"passed":isCurrent?"current":"";
+const dotCls=r.passed?"pass":isCurrent?"fail-current":"fail";
+const check=r.passed?`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>`:`<span class="mini-dot"></span>`;
+const badge=isCurrent?`<span class="badge">Current</span>`:"";
+const el=document.createElement("div");el.className=`rule ${cls}`;
+el.innerHTML=`<div class="dot ${dotCls}">${check}</div><div style="flex:1;min-width:0;display:flex;align-items:flex-start;gap:8px"><p class="rule-text"><span class="rid">#${r.id}</span>${r.desc}</p>${badge}</div>`;
+content.appendChild(el);
+if(isCurrent)setTimeout(()=>el.scrollIntoView({behavior:"smooth",block:"center"}),150);
+}
+
+div.querySelector(".group-trigger").onclick=()=>{openGroups[g.label]=!isOpen;render()};
+groupsContainer.appendChild(div);
+}
+}
+
+// ===== CONFETTI (lightweight) =====
+function fireConfetti(){
+const canvas=document.createElement("canvas");canvas.style.cssText="position:fixed;inset:0;z-index:999;pointer-events:none";canvas.width=window.innerWidth;canvas.height=window.innerHeight;document.body.appendChild(canvas);
+const ctx=canvas.getContext("2d");const colors=["#A9C9FF","#53ADD2","#2E78B5","#10B981","#F59E0B"];
+const particles=[];
+for(let i=0;i<120;i++){particles.push({x:Math.random()*canvas.width,y:canvas.height+Math.random()*200,vx:(Math.random()-0.5)*8,vy:-(Math.random()*12+6),size:Math.random()*6+3,color:colors[Math.floor(Math.random()*colors.length)],rotation:Math.random()*360,rotV:(Math.random()-0.5)*10,life:1})}
+let frame;function animate(){ctx.clearRect(0,0,canvas.width,canvas.height);let alive=false;for(const p of particles){if(p.life<=0)continue;alive=true;p.x+=p.vx;p.y+=p.vy;p.vy+=0.25;p.rotation+=p.rotV;p.life-=0.008;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rotation*Math.PI/180);ctx.globalAlpha=p.life;ctx.fillStyle=p.color;ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size);ctx.restore()}if(alive)frame=requestAnimationFrame(animate);else{cancelAnimationFrame(frame);canvas.remove()}}
+animate();
+}
+
+render();
+</script>
+
+<aside id="lovable-badge" role="complementary" dir="ltr" lang="en" aria-label="Edit with Lovable">
+	<a id="lovable-badge-cta" target="_blank" href="https://lovable.dev/projects/eb0eede1-d9fd-455f-ba1b-1d66419a1c8f?utm_source=lovable-badge" rel="noopener" aria-label="Edit with Lovable">
+		<span id="lovable-badge-text">Edit with</span>
+		<svg xmlns="http://www.w3.org/2000/svg" width="52" height="16" fill="none" viewBox="0 0 52 16">
+  <path fill="#FCFBF8" fill-rule="evenodd" d="M20.318 5.25c.643 0 1.206.14 1.69.418a2.81 2.81 0 0 1 1.118 1.191c.266.513.4 1.115.4 1.807s-.134 1.296-.4 1.812a2.81 2.81 0 0 1-1.118 1.193c-.484.278-1.047.418-1.69.418s-1.208-.14-1.695-.418a2.85 2.85 0 0 1-1.125-1.193c-.262-.516-.393-1.12-.393-1.812s.131-1.294.393-1.807a2.848 2.848 0 0 1 1.125-1.191c.487-.279 1.052-.418 1.695-.418Zm0 1.425c-.27 0-.504.076-.7.228-.193.147-.34.37-.443.67-.102.295-.153.66-.153 1.093 0 .435.05.801.153 1.1.102.3.25.524.443.676.196.147.43.22.7.22.27 0 .502-.073.694-.22.193-.152.341-.375.443-.67.103-.299.153-.667.153-1.106 0-.65-.112-1.145-.337-1.481a1.08 1.08 0 0 0-.953-.51ZM32.7 5.25c.61 0 1.127.1 1.549.3.422.197.74.48.953.849.217.368.325.809.325 1.32v2.704c0 .29.02.562.062.812.044.245.108.4.19.466V12h-1.935a5.895 5.895 0 0 1-.105-.684 7.745 7.745 0 0 1-.02-.228 2.293 2.293 0 0 1-.151.203c-.205.242-.47.437-.793.584-.32.143-.685.215-1.094.215-.406 0-.77-.08-1.094-.24a1.845 1.845 0 0 1-.756-.682 1.984 1.984 0 0 1-.27-1.045c0-.606.178-1.069.535-1.388.356-.324.87-.534 1.542-.633l1.125-.16c.225-.032.403-.074.534-.123a.622.622 0 0 0 .288-.196.549.549 0 0 0 .093-.327.65.65 0 0 0-.11-.367.702.702 0 0 0-.32-.27c-.14-.07-.31-.105-.51-.105-.32 0-.576.083-.768.251-.193.164-.298.39-.314.676h-1.923c.016-.434.147-.82.393-1.155.25-.34.596-.604 1.039-.792.442-.189.954-.283 1.535-.283Zm.99 3.498a.98.98 0 0 1-.215.14 2.49 2.49 0 0 1-.584.178l-.473.092c-.315.061-.553.156-.713.283-.155.127-.233.305-.233.534 0 .23.084.412.252.547.168.135.383.203.645.203s.494-.058.694-.173c.201-.118.355-.282.461-.49.11-.21.166-.448.166-.714v-.6Zm4.526-2.375c.065-.125.138-.243.221-.349.197-.25.437-.44.719-.571.282-.135.6-.203.952-.203.528 0 .988.138 1.377.412.389.275.688.67.896 1.186.21.512.314 1.12.314 1.824 0 .7-.107 1.309-.32 1.825-.213.512-.518.906-.915 1.18-.393.275-.854.412-1.383.412-.352 0-.667-.062-.946-.184a1.832 1.832 0 0 1-.7-.554 2.2 2.2 0 0 1-.234-.383V12h-1.843V3h1.862v3.373Zm1.284.296c-.274 0-.51.085-.707.253-.192.163-.338.397-.436.7a3.376 3.376 0 0 0-.148 1.05c0 .406.05.759.148 1.058.098.299.243.53.436.694.197.164.433.246.707.246.279 0 .512-.082.7-.246.193-.164.336-.395.43-.694.099-.3.148-.652.148-1.058 0-.405-.05-.757-.147-1.056-.095-.299-.238-.53-.43-.694a1.015 1.015 0 0 0-.7-.253Zm9.416-1.419c.602 0 1.136.131 1.604.393.466.262.829.643 1.086 1.143.263.5.394 1.097.394 1.794 0 .25-.002.449-.006.596H47.51c.018.288.071.538.164.75a1.3 1.3 0 0 0 .491.596c.214.13.465.196.757.196.319 0 .583-.082.792-.246.209-.167.34-.403.393-.706h1.862a2.48 2.48 0 0 1-.485 1.235 2.54 2.54 0 0 1-1.051.805c-.439.188-.949.283-1.53.283-.655 0-1.225-.125-1.708-.375a2.672 2.672 0 0 1-1.13-1.143c-.267-.508-.4-1.137-.4-1.887 0-.712.14-1.327.418-1.843a2.86 2.86 0 0 1 1.155-1.186c.491-.27 1.051-.405 1.678-.405Zm-.044 1.345c-.274 0-.516.068-.725.203a1.29 1.29 0 0 0-.479.59 2.045 2.045 0 0 0-.132.498h2.562a1.873 1.873 0 0 0-.138-.602 1.061 1.061 0 0 0-.418-.516 1.243 1.243 0 0 0-.67-.173Z" clip-rule="evenodd"></path>
+  <path fill="#FCFBF8" d="m26.605 9.995 1.342-4.566h1.924L27.628 12h-2.07l-2.33-6.57h1.98l1.397 4.565Zm-13.013.143h2.256c1.632 0 1.421 1.837 1.418 1.861h-5.603V3h1.93v7.138Zm31.516 1.861h-1.862V3h1.862v8.999Z"></path>
+  <path fill="url(#a)" fill-rule="evenodd" d="M2.7 3c1.492 0 2.7 1.192 2.7 2.663v1.012h.9c1.49 0 2.7 1.192 2.7 2.662S7.791 12 6.3 12H0V5.663C0 4.193 1.209 3 2.7 3Z" clip-rule="evenodd"></path>
+  <defs>
+    <radialgradient id="a" cx="0" cy="0" r="1" gradientTransform="matrix(-1.54236 7.07838 -10.231 -2.15602 4.627 5.022)" gradientUnits="userSpaceOnUse">
+      <stop offset=".106" stop-color="#FE7B02"></stop>
+      <stop offset=".394" stop-color="#FE3F21"></stop>
+      <stop offset=".608" stop-color="#F858BC"></stop>
+      <stop offset=".929" stop-color="#575ECF"></stop>
+    </radialgradient>
+  </defs>
+</svg>
+
+
+	</a>
+	
+	<span id="lovable-badge-divider" aria-hidden="true"></span>
+	
+	<button id="lovable-badge-close" aria-label="Dismiss" title="Dismiss" type="button">
+		<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16" aria-hidden="true">
+			<path d="M10.646 4.646a.5.5 0 1 1 .707.708L8.707 8l2.646 2.646a.5.5 0 1 1-.707.707L8 8.707l-2.646 2.646a.5.5 0 1 1-.708-.707L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708L8 7.293l2.646-2.647Z"></path>
+		</svg>
+	</button>
+</aside>
+<script>
+	// Don't show the lovable-badge if the page is in an iframe or if it's being rendered by puppeteer (screenshot service)
+	if (window.self !== window.top || navigator.userAgent.includes('puppeteer')) {
+		// the page is in an iframe
+		var badge = document.getElementById('lovable-badge');
+		if (badge) {
+			badge.style.display = 'none';
+		}
+	}
+
+	// Add click event listener to close button with animation
+	var closeButton = document.getElementById('lovable-badge-close');
+	if (closeButton) {
+		closeButton.addEventListener('click', function(event) {
+			event.preventDefault();
+			event.stopPropagation();
+			var badge = document.getElementById('lovable-badge');
+			if (badge) {
+				badge.classList.add('closing');
+				setTimeout(function() {
+					if (badge) {
+						badge.style.display = 'none';
+					}
+				}, 240);
+			}
+		});
+	}
+</script>
+
+
+</body></html>
